@@ -1,0 +1,15 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0
+WORKDIR /src
+
+COPY MatrixApp/MatrixApp.csproj MatrixApp/
+COPY MatrixApp.Tests/MatrixApp.Tests.csproj MatrixApp.Tests/
+RUN dotnet restore MatrixApp/MatrixApp.csproj
+RUN dotnet restore MatrixApp.Tests/MatrixApp.Tests.csproj
+
+COPY MatrixApp/. MatrixApp/
+COPY MatrixApp.Tests/. MatrixApp.Tests/
+
+RUN dotnet build MatrixApp/MatrixApp.csproj -c Release
+RUN dotnet build MatrixApp.Tests/MatrixApp.Tests.csproj -c Release
+
+CMD ["dotnet", "test", "MatrixApp.Tests/MatrixApp.Tests.csproj", "--logger:trx", "--results-directory", "/src/TestResults"]
