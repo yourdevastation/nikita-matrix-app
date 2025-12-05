@@ -44,7 +44,7 @@ pipeline {
             }
             post {
                 always {
-                    junit allowEmptyResults: true, testResults: 'testresults/*.trx'
+                    junit allowEmptyResults: true, testResults: 'testresults/**/*.xml'
                 }
             }
         }
@@ -57,7 +57,7 @@ pipeline {
             steps {
                 unstash 'source-code'
                 sh '''
-                docker build -t ${DOCKER_REPO}/${IMAGE_NAME}:${IMAGE_TAG} .
+                docker build -t ${DOCKER_REPO}/${IMAGE_NAME}:${IMAGE_TAG} -f MatrixApp/Dockerfile ./MatrixApp
                 docker tag ${DOCKER_REPO}/${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REPO}/${IMAGE_NAME}:latest
                 '''
             }
