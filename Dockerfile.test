@@ -13,4 +13,8 @@ RUN dotnet build MatrixApp/MatrixApp.csproj -c Release
 RUN dotnet build MatrixApp.Tests/MatrixApp.Tests.csproj -c Release
 
 ENV ASPNETCORE_URLS=http://+:8080
-CMD ["dotnet", "test", "MatrixApp.Tests/MatrixApp.Tests.csproj", "--logger", "trx;LogFileName=test_results.trx", "--results-directory", "/src/TestResults", "--no-build"]
+CMD ["dotnet", "test", "MatrixApp.Tests/MatrixApp.Tests.csproj", \
+    "-c", "Release", \
+    "--logger", "trx;LogFileName=test_results.trx", \
+    "--results-directory", "/src/TestResults", \
+    "--no-build"]
