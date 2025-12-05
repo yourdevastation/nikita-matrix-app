@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор среднего матрицы</title>
+    <style>
+        body { font-family: Arial; max-width: 900px; margin: 50px auto; padding: 20px; }
+        .controls { margin: 20px 0; padding: 20px; background: #f5f5f5; border-radius: 5px; }
+        input, button { margin: 5px; padding: 10px; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; border-radius: 3px; }
+        button:hover { background: #0056b3; }
+        table { border-collapse: collapse; margin: 20px 0; }
+        td { border: 1px solid #ddd; padding: 5px; }
+        input[type="number"] { width: 70px; }
+        .result { margin: 20px 0; padding: 15px; background: #d4edda; border-radius: 5px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <h1>Калькулятор среднего арифметического матрицы</h1>
+    
+    <div class="controls">
+        <h3>Генерация матрицы</h3>
+        <label>Строки: <input type="number" id="rows" value="3" min="1" max="10"></label>
+        <label>Столбцы: <input type="number" id="cols" value="3" min="1" max="10"></label>
+        <label>Мин: <input type="number" id="min" value="1" step="0.1"></label>
+        <label>Макс: <input type="number" id="max" value="100" step="0.1"></label>
+        <button onclick="generateMatrix()">Сгенерировать</button>
+        <button onclick="createEmptyMatrix()">Создать пустую</button>
+    </div>
+
+    <div id="matrixContainer"></div>
+    
+    <button onclick="calculateAverage()" style="margin: 20px 0;">Вычислить среднее</button>
+    
+    <div id="result"></div>
+
+    <script>
+        let currentMatrix = [];
+
+        function createEmptyMatrix() {
+            const rows = parseInt(document.getElementById('rows').value);
+            const cols = parseInt(document.getElementById('cols').value);
+            
+            currentMatrix = Array(rows).fill().map(() => Array(cols).fill(0));
+            renderMatrix(currentMatrix, true);
+        }
+
+        function generateMatrix() {
+            const rows = parseInt(document.getElementById('rows').value);
+            const cols = parseInt(document.getElementById('cols').value);
+            const min = parseFloat(document.getElementById('min').value);
+            const max = parseFloat(document.getElementById('max').value);
+
+            fetch('/api/matrix/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rows, cols, min, max })
+            })
+            .then(res => res.json())
+            .then(data => {
+                currentMatrix = data.matrix;
+                renderMatrix(data.matrix, true);
+                showResult(data);
+            })
+            .catch(err => alert('Ошибка: ' + err));
+        }
+
+        function renderMatrix(matrix, editable = false) {
+            let html = '<table>';
+            matrix.forEach((row, i) => {
+                html += '<tr>';
+                row.forEach((val, j) => {
+                    if (editable) {
+                        html += `<td><input type="number" value="${val}" onchange="updateCell(${i}, ${j}, this.value)" step="0.01"></td>`;
+                    } else {
+                        html += `<td>${val.toFixed(2)}</td>`;
+                    }
+                });
+                html += '</tr>';
+            });
+            html += '</table>';
+            document.getElementById('matrixContainer').innerHTML = html;
+        }
+
+        function updateCell(i, j, value) {
+            currentMatrix[i][j] = parseFloat(value) || 0;
+        }
+
+        function calculateAverage() {
+            if (currentMatrix.length === 0) {
+                alert('Сначала создайте матрицу!');
+                return;
+            }
+
+            fetch('/api/matrix/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ matrix: currentMatrix })
+            })
+            .then(res => res.json())
+            .then(data => showResult(data))
+            .catch(err => alert('Ошибка: ' + err));
+        }
+
+        function showResult(data) {
+            document.getElementById('result').innerHTML = `
+                <div class="result">
+                    <strong>${data.message}</strong><br>
+                    Среднее арифметическое: <strong>${data.average.toFixed(4)}</strong>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
