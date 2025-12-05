@@ -12,9 +12,8 @@ COPY MatrixApp.Tests/. MatrixApp.Tests/
 RUN dotnet build MatrixApp/MatrixApp.csproj -c Release
 RUN dotnet build MatrixApp.Tests/MatrixApp.Tests.csproj -c Release
 
-ENV ASPNETCORE_URLS=http://+:8080
 CMD ["dotnet", "test", "MatrixApp.Tests/MatrixApp.Tests.csproj", \
     "-c", "Release", \
-    "--logger", "junit;LogFileName=test_results.xml", \
+    "--logger", "trx;LogFileName=test_results.trx", \
     "--results-directory", "/src/TestResults", \
     "--no-build"]

@@ -44,7 +44,9 @@ pipeline {
             }
             post {
                 always {
-                    junit allowEmptyResults: true, testResults: 'testresults/**/*.xml'
+                    mstest testResultsFile: 'testresults/**/*.trx', 
+                        failOnError: false,
+                        keepLongStdio: true
                 }
             }
         }
