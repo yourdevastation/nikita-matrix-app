@@ -44,7 +44,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'testresults/*.trx'
+                    junit allowEmptyResults: true, testResults: 'testresults/*.trx'
                 }
             }
         }
